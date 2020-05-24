@@ -12,16 +12,20 @@ const limiter = rateLimit({
 })
 
 app.use(cors())
-app.use(limiter)
 app.use(bodyParser.json())
+app.use(express.static('assets'))
 
-app.post('/contact', (req, res) => {
-    fs.readFile('contact.json', 'utf8', function (err, data) {
+app.post('/contact', limiter, (req, res) => {
+    fs.readFile('data/contact.json', 'utf8', (err, data) => {
         let json = JSON.parse(data || '[]')
         json.push(req.body)
-        fs.writeFile("contact.json", JSON.stringify(json), err => {if(err) console.log(err)})
+        fs.writeFile("data/contact.json", JSON.stringify(json), err => {if(err) console.log(err)})
     })
     res.send({success: true})
+})
+
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/templates/home.html")
 })
 
 const port = process.env.PORT || 5000
