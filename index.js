@@ -11,10 +11,12 @@ const limiter = rateLimit({
   max: 1 // limit each IP to max requests per windowMs
 })
 
+const ENV = process.env.NODE_ENV || 'dev'
+
 app.use(cors())
 app.use(bodyParser.json())
 
-if (process.env.NODE_ENV !== 'production') app.use(express.static('assets'))
+if (ENV != 'prod') app.use(express.static('assets'))
 
 app.post('/contact', limiter, (req, res) => {
     fs.readFile('data/contact.json', 'utf8', (err, data) => {
@@ -29,5 +31,5 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/templates/home.html")
 })
 
-const port = process.env.PORT || 3000
-app.listen(port, () => console.log(`Listening on port ${port}...`))
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => console.log(`Running ${ENV} environment on port ${PORT}...`))
