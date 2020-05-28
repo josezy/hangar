@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Tapabocas</title>
+
+  <link rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+    crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
+
+  <script src="/js/utils.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+  <style>
+    /*   Video Element   */
+    .video {
+        min-width: 100vw;
+        min-height: 100vh;
+        position: fixed;
+    }
+
+    /*   Main Header   */
+    .main-header {
+        width: fit-content;
+        color: white;
+        padding: 2px 10px;
+        position: absolute;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 10;
+    }
+  </style>
+
+</head>
+
+<body style="background-color: black;">
+  <div id="main-header" class="main-header">
+    <h2>Tapabocas</h2>
+    <p id="errorMessage"></p>
+  </div>
+
+  <div id="loading-div">
+    <div class="d-flex">
+      <div class="m-auto">
+        <div class="spinner-grow text-muted"></div>
+        <div class="spinner-grow text-primary"></div>
+        <div class="spinner-grow text-success"></div>
+        <div class="spinner-grow text-info"></div>
+        <div class="spinner-grow text-warning"></div>
+        <div class="spinner-grow text-danger"></div>
+        <div class="spinner-grow text-secondary"></div>
+        <div class="spinner-grow text-dark"></div>
+        <div class="spinner-grow text-light"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex" style="justify-content: center;">
+    <video id="video" class="video" style="display: none" width="640" height="480"></video>
+    <canvas id="the-canvas" class="video"></canvas>
+    <canvas id="hidden-canvas" style="display: none"></canvas>
+  </div>
+
+  <script>
+    const onOpenCvReady = async () => {
+      document.getElementById('loading-div').style.display = 'none'
+
+      let video = document.getElementById('video')
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function(stream) {
+            video.srcObject = stream
+            video.play()
+        })
+        .catch(function(err) {
+            console.log("An error occurred! " + err)
+        })
+
+
+      let src = new cv.Mat(video.height, video.width, cv.CV_8UC4)
+      let dst = new cv.Mat(video.height, video.width, cv.CV_8UC1)
+      const cap = new cv.VideoCapture(video)
+
+      const faceCascade = new cv.CascadeClassifier()
+      faceCascade.load('haarcascade_frontalface_default.xml')
+
+      let can_send = true
+      let with_mask = null
+      let face_box = null
+      const sio = io("wss://ai.tucanoar.com/", {path: '/masks/socket.io'})
+      // const sio = io("ws://localhost:5003/")
+      sio.on('message', data => {
+        can_send = true
+        with_mask = data.with_mask
+        face_box = data.box
+        console.log(with_mask)
+        const sonia_header = document.getElementById('main-header')
+        sonia_header.style.background = with_mask ? 'rgba(0, 255, 0, 0.4)' : 'rgba(255, 0, 0, 0.4)'
+      })
+
+      const FPS = 24
+      const processVideo = async () => {
+        try {
+          const begin = Date.now()
+          cap.read(src)
+          cv.flip(src, src, 1)
+
+//           if (face_box) {
+//             const x1 = face_box.upper_left[0]
+//             const y1 = face_box.upper_left[1]
+//             const x2 = face_box.down_right[0]
+//             const y2 = face_box.down_right[1]
+// 
+//             const point1 = new cv.Point(x1, y1)
+//             const point2 = new cv.Point(x2, y2)
+//             const color = with_mask ? [0, 255, 0, 255] : [255, 0, 0, 255]
+//             cv.rectangle(src, point2, point1, color)
+//           }
+
+          cv.imshow('the-canvas', src)
+          cv.imshow('hidden-canvas', src)
+
+          const hidden_canvas = document.getElementById('hidden-canvas')
+          if (hidden_canvas && can_send) {
+            const b64image = hidden_canvas.toDataURL('image/jpeg', 0.2).split('base64,')[1]
+            sio.send(b64image)
+            can_send = false
+            // face_box = null
+          }
+
+          setTimeout(processVideo, 1000/FPS - (Date.now() - begin))
+        } catch(err){
+          console.log(err)
+        }
+      }
+      setTimeout(processVideo, 0)
+    }
+  ;</script>
+
+  <script>
+    let utils = new Utils('errorMessage')
+
+    utils.loadOpenCv(() => {
+      utils.createFileFromUrl(
+        'haarcascade_frontalface_default.xml',
+        'https://tucanoar.com/file/haarcascade_frontalface_default.xml',
+        onOpenCvReady
+      )
+    })
+  ;</script>
+
+  </body>
+</html>

@@ -31,5 +31,9 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/templates/home.html")
 })
 
+app.get("/covid", (req, res) => {
+    res.sendFile(__dirname + "/templates/mask.html")
+})
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Running ${ENV} environment on port ${PORT}...`))
