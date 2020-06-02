@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Encuesta</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/encuesta-covid/style.css">
+  </head>
+
+  <body class="d-flex flex-column py-4">
+    <center>
+        <h4 class="main-font" style="font-size: 5rem">Sonia Fashion</h4>
+        <h1 id=question class="questions"><em>Hola :)<br>Verifiquemos tu estado de salud con algunas preguntas...</em></h1>
+    </center>
+
+    <div class="mx-auto my-4">
+        <button id='record' class="btn btn-warning" style="width:100px">Start</button>
+    </div>
+    <script>
+      const gretting = new Audio('/encuesta-covid/audio/0-saludo.ogg')
+      const name = new Audio('/encuesta-covid/audio/1-nombre.ogg')
+      const id = new Audio('/encuesta-covid/audio/2-cedula.ogg')
+      const age = new Audio('/encuesta-covid/audio/3-edad.ogg')
+      const temperature = new Audio('/encuesta-covid/audio/4-temperatura.ogg')
+      const fever = new Audio('/encuesta-covid/audio/5-fiebre.ogg')
+      const cough = new Audio('/encuesta-covid/audio/6-tos.ogg')
+      const soreThroat = new Audio('/encuesta-covid/audio/7-garganta.ogg')
+      const breathingLost = new Audio('/encuesta-covid/audio/8-respirar.ogg')
+      const malaise = new Audio('/encuesta-covid/audio/9-malestar.ogg')
+      const travel = new Audio('/encuesta-covid/audio/10-viaje.ogg')
+      const touchCovid = new Audio('/encuesta-covid/audio/11-contacto.ogg')
+      const flu = new Audio('/encuesta-covid/audio/12-gripe.ogg')
+      const byeAudio = new Audio('/encuesta-covid/audio/13-chao.ogg')
+      const audios = [
+        name,
+        id,
+        age,
+        temperature,
+        fever,
+        cough,
+        soreThroat,
+        breathingLost,
+        malaise,
+        travel,
+        touchCovid,
+        flu,
+        byeAudio
+      ]
+
+      const whichName = "¿Cúal es tu nombre?"
+      const whichId = "¿Cúal es tu número de cédula?"
+      const howAge = "¿Cúal es tu edad?"
+      const whichTemperature = "¿Cúal fue tu temperatura?"
+      const feelFever = "¿Has tenido fiebre?"
+      const feelCough = "¿Has tenido tos?"
+      const feelSoreThroat = "¿Has tenido dolor de garganta?"
+      const feelBreathingLost = "¿Has sentido dificultad al respirar?"
+      const feelMalaise = "¿Has sentido malestar?"
+      const haveTravel = "¿Has viado en los últimos 14 días?"
+      const haveTouchCovid = "¿Has estado en contacto de alguna persona con COVID-19?"
+      const feelFlu = "¿Has tenido gripe?"
+      const bye = "¡ Muchas gracias y cuídate !"
+      const questions = [
+        whichName,
+        whichId,
+        howAge,
+        whichTemperature,
+        feelFever,
+        feelCough,
+        feelSoreThroat,
+        feelBreathingLost,
+        feelMalaise,
+        haveTravel,
+        haveTouchCovid,
+        feelFlu,
+        bye
+      ]
+
+      const timeToRecord = 5000
+      let audioChunks = []
+
+      navigator.mediaDevices.getUserMedia({audio:true})
+        .then(stream => handlerFunction(stream))
+
+      function handlerFunction(stream) {
+          rec = new MediaRecorder(stream)
+          rec.ondataavailable = e => {
+              audioChunks.push(e.data)
+              if (rec.state == "inactive"){
+                  const blob = new Blob(audioChunks, {type:'audio/mpeg-3'})
+                  saveData(blob)
+              }
+          }
+      }
+
+      function saveData(data) {
+          const a = document.createElement("a");
+          document.body.appendChild(a)
+          a.style = "display: none"
+          url = window.URL.createObjectURL(data)
+          a.href = url
+          a.download = 'audio.mpeg'
+          a.click()
+      }
+
+      gretting.addEventListener('ended', (e) => {
+        document.getElementById('question').innerHTML = whichName
+        name.play();
+      });
+
+      name.addEventListener('ended', (e) => {
+        rec.start()
+        setTimeout(()=>{
+          document.getElementById('question').innerHTML = whichId
+          id.play()
+        },
+        timeToRecord)
+      });
+
+      for (let index = 1; index < audios.length-1; index++) {
+        const currentAudio = audios[index]
+        const nextAudio = audios[index+1]
+        const nextQuestion = questions[index+1]
+
+        currentAudio.addEventListener('ended', (e) => {
+          setTimeout(()=>{
+            document.getElementById('question').innerHTML = nextQuestion
+            nextAudio.play()
+          },
+          timeToRecord)
+        });
+      }
+
+      byeAudio.addEventListener('ended', (e) => {
+        rec.stop()
+        record.style = "display: block"
+      });
+
+      record.onclick = e => {
+        gretting.play()
+        record.style = "display: none"
+      }
+
+    </script>
+
+  </body>
+</html>

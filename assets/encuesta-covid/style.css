@@ -1,0 +1,17 @@
+@font-face {
+  font-family: 'BrushScriptStd';
+  src: url('/encuesta-covid/fonts/BrushScriptStd.ttf') format('truetype'),
+       url('/encuesta-covid/fonts/BrushScriptStd.woff') format('woff'),
+       url('/encuesta-covid/fonts/BrushScriptStd.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.main-font {
+    font-family: "BrushScriptStd";
+    color: #f2b80b;
+}
+
+body {
+    background-color: #f0f8ff;
+}
