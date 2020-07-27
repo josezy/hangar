@@ -64,6 +64,21 @@
         $(this).removeClass("floating-label-form-group-with-focus");
       });
     });
-  
+
+    // Show modal if location has hash
+    $(window.location.hash).modal('show')
+
+    // Set/Unset hash when modal shows/hide
+    $('.modal').on('shown.bs.modal', function (e) {
+        window.location.hash = e.target.id
+    })
+    $('.modal').on('hide.bs.modal', function (e) {
+        removeLocationHash()
+    })
+    function removeLocationHash(){
+        var noHashURL = window.location.href.replace(/#.*$/, '');
+        window.history.replaceState('', document.title, noHashURL) 
+    }
+
   })(jQuery); // End of use strict
   
