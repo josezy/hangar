@@ -87,6 +87,7 @@ h1, h2, h3, h4, h5, h6 {
 p {
   margin-top: 0;
   margin-bottom: 1rem;
+  text-align: justify;
 }
 
 abbr[title],
@@ -5522,7 +5523,7 @@ a.close.disabled {
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 500px;
+    max-width: 80%;
     margin: 1.75rem auto;
   }
 
@@ -10121,11 +10122,11 @@ h3 {
 }
 .portfolio .portfolio-item .portfolio-item-caption {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   transition: all 0.2s ease-in-out;
-  opacity: 0;
-  background-color: rgba(26, 188, 156, 0.9);
+  /*opacity: 0;*/
+  background-color: rgba(26, 188, 156, 0.7);
 }
 .portfolio .portfolio-item .portfolio-item-caption:hover {
   opacity: 1;
