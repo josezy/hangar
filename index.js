@@ -39,5 +39,11 @@ app.get("/encuesta-covid", (req, res) => {
     res.sendFile(__dirname + "/templates/encuesta-covid.html")
 })
 
+app.use(express.static('webpages/andres_hoyos/creative'))
+app.get("/ah", (req, res) => {
+    res.sendFile(__dirname + "/webpages/andres_hoyos/creative/index.html")
+    // res.sendFile(__dirname + "/webpages/andres_hoyos/agency/index.html")
+})
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Running ${ENV} environment on port ${PORT}...`))
