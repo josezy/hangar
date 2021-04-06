@@ -22,7 +22,11 @@ app.post('/contact', limiter, (req, res) => {
     fs.readFile('data/contact.json', 'utf8', (err, data) => {
         let json = JSON.parse(data || '[]')
         json.push(req.body)
-        fs.writeFile("data/contact.json", JSON.stringify(json), err => {if(err) console.log(err)})
+        fs.writeFile(
+            "data/contact.json",
+            JSON.stringify(json),
+            err => {if(err) console.log(err)}
+        )
     })
     res.send({success: true})
 })
@@ -46,4 +50,5 @@ app.get("/ah", (req, res) => {
 })
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`Running ${ENV} environment on port ${PORT}...`))
+const running_msg = `Running ${ENV} environment on port ${PORT}...`
+app.listen(PORT, () => console.log(running_msg))
