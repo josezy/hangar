@@ -21,7 +21,10 @@ if (ENV != 'prod') app.use(express.static('assets'))
 app.post('/contact', limiter, (req, res) => {
     fs.readFile('data/contact.json', 'utf8', (err, data) => {
         let json = JSON.parse(data || '[]')
-        json.push(req.body)
+        json.push({
+            ...req.body,
+            timestamp: Date.now(),
+        })
         fs.writeFile(
             "data/contact.json",
             JSON.stringify(json),
