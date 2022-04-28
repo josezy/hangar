@@ -97,7 +97,7 @@
       let can_send = true
       let with_mask = null
       let face_box = null
-      const sio = io("wss://ai.tucanoar.com/", {path: '/masks/socket.io'})
+      const sio = io("wss://ai.tucanorobotics.co/", {path: '/masks/socket.io'})
       // const sio = io("ws://localhost:5003/")
       sio.on('message', data => {
         can_send = true
