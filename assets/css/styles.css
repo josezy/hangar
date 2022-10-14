@@ -6078,7 +6078,21 @@ button.bg-primary:focus {
 }
 
 .bg-secondary {
-  background-color: #00354c !important;
+  /* background-color: #00354c !important; */
+  background-image: url(/img/banner.jpg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+ul.key-items {
+  list-style-type: disclosure-closed;
+  padding: 0;
+}
+
+ul.key-items > li {
+  font-family: "Aller";
+  font-size: 1.1rem;
 }
 
 a.bg-secondary:hover, a.bg-secondary:focus,
